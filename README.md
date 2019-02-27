@@ -14,6 +14,8 @@ You can also run from the command line by passing arguments instead:
 - -f : Find text
 - -r : Replace text
 
+Run with --help for help text.
+
 All instances of the find text will be replaced, giving you a completely renamed project throught the file structure.
 
 An attempt is made to avoid corrupting files managed by version control and visual studio (so `.git`, `.svn` and `.vs` directories are ignored). This list is not exhaustive though so ideally you will have the solution code in a directory other than where these files sit.
