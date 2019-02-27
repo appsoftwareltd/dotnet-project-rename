@@ -8,6 +8,9 @@ You may want to do this if you are reusing an existing project as a base for a n
 
 If you have a project with the name `Foo.Bar`, which is used in namespaces, project names and file and folder names, and you want to change it to `My.New.Project`, then run the program and enter the path, the find text (Foo.Bar) and the replace text (My.New.Project) when prompted.
 
+
+![Example](https://i.imgur.com/ihBY1aL.png)
+
 You can also run from the command line by passing arguments instead:
 
 - -p : Directory path
