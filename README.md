@@ -2,7 +2,7 @@
 
 ## Visual Studio project renaming (within files, file names and directory names)
 
-This console application is designed for finding and replacing text throughout Visual Studio projects, including inside project and data files, along with file and folder names, including solution files.
+This console application is designed for finding and replacing text throughout Visual Studio projects, including inside project and data files, along with file and folder names, including solution files. By recursively renaming at the root of the project, you can avoid breaking links to project files and references to other projects in the solution. 
 
 You may want to do this if you are reusing an existing project as a base for a new project, but need to replace old names.
 
