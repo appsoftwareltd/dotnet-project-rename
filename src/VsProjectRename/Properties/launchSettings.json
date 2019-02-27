@@ -1,8 +1,7 @@
 {
   "profiles": {
     "VsProjectRename": {
-      "commandName": "Project",
-      "commandLineArgs": "-d \"C:\\Users\\gbro11\\Desktop\\Test\\src\" -f FolderSize -r DirectorySize"
+      "commandName": "Project"
     }
   }
 }

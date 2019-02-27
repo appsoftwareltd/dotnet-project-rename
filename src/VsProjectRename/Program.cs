@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Permissions;
 using System.Text.RegularExpressions;
 using CommandLine;
@@ -9,13 +10,17 @@ namespace VsProjectRename
 {
     class Program
     {
+        private static string[] _ignoredDirectoryNames = { ".vs", ".git", ".svn" };
+
         private static int _replaceInFilesCount;
         private static int _replaceInFileNamesCount;
         private static int _replaceInDirectoryNamesCount;
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Working... \n");
+            string ignoredFolders = _ignoredDirectoryNames.Aggregate<string, string>(null, (current, ignoredDirectoryName) => current + $"'{ignoredDirectoryName}', ").TrimEnd(new char[] {',', ' '});
+
+            Console.WriteLine($"This application is best run with administrator privileges. Directories with the following names will be ignored to try and prevent access / corruption issues: {ignoredFolders}");
 
             // Using commandline parser to 
             // https://github.com/commandlineparser/commandline
@@ -43,33 +48,70 @@ namespace VsProjectRename
             try
             {
                 string directoryPath = opts.DirectoryPath;
+                string findText = opts.FindText;
+                string replaceText = opts.ReplaceText;
 
-                ReplaceInFiles(directoryPath, opts.FindText, opts.ReplaceText, deleteVsUserSettingsDirectory: true);
+                if(string.IsNullOrWhiteSpace(directoryPath))
+                {
+                    Console.WriteLine("\nEnter root directory path:");
+                    directoryPath = Console.ReadLine();
+                }
+                else
 
-                ReplaceInFileNames(directoryPath, opts.FindText, opts.ReplaceText, deleteVsUserSettingsDirectory: true);
+                {
+                    Console.WriteLine($"\nRoot directory path: {directoryPath}");
+                }
 
-                ReplaceInDirectoryNames(directoryPath, opts.FindText, opts.ReplaceText, deleteVsUserSettingsDirectory: true);
+                if (string.IsNullOrWhiteSpace(findText))
+                {
+                    Console.WriteLine("\nEnter find text (case sensitive):");
+                    findText = Console.ReadLine();
+                }
+                else
+                {
+                    Console.WriteLine($"\nFind text: {directoryPath}");
+                }
 
-                Console.WriteLine($"Finished.\n");
+                if (string.IsNullOrWhiteSpace(replaceText))
+                {
+                    Console.WriteLine("\nEnter replace text (case sensitive):");
+                    replaceText = Console.ReadLine();
+                }
+                else
+                {
+                    Console.WriteLine($"\nReplace text: {directoryPath}");
+                }
+
+                Console.WriteLine("\nWorking...");
+
+                ReplaceInFiles(directoryPath, findText, replaceText, deleteVsUserSettingsDirectory: true);
+
+                ReplaceInFileNames(directoryPath, findText, replaceText, deleteVsUserSettingsDirectory: true);
+
+                ReplaceInDirectoryNames(directoryPath, findText, replaceText, deleteVsUserSettingsDirectory: true);
+
+                Console.WriteLine($"\nFinished.\n");
 
                 Console.WriteLine($"Replaced {_replaceInFilesCount} occurrences in files");
                 Console.WriteLine($"Replaced {_replaceInFileNamesCount} occurrences in file names");
                 Console.WriteLine($"Replaced {_replaceInDirectoryNamesCount} occurrences in directory names");
+
+                Console.WriteLine($"\nPress enter to continue.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Failed with exception: {ex.Message}");
             }
+
+            Console.ReadLine();
         }
 
         public static void ReplaceInFiles(string directoryPath, string findText, string replaceText, bool deleteVsUserSettingsDirectory)
         {
             var directoryInfo = new DirectoryInfo(directoryPath);
 
-            if (deleteVsUserSettingsDirectory && directoryInfo.Name == ".vs")
+            if (deleteVsUserSettingsDirectory && _ignoredDirectoryNames.Contains(directoryInfo.Name))
             {
-                Directory.Delete(directoryInfo.FullName, true);
-
                 return;
             }
 
@@ -99,10 +141,8 @@ namespace VsProjectRename
         {
             var directoryInfo = new DirectoryInfo(directoryPath);
 
-            if (deleteVsUserSettingsDirectory && directoryInfo.Name == ".vs")
+            if (deleteVsUserSettingsDirectory && _ignoredDirectoryNames.Contains(directoryInfo.Name))
             {
-                Directory.Delete(directoryInfo.FullName, true);
-
                 return;
             }
 
@@ -134,10 +174,8 @@ namespace VsProjectRename
         {
             var directoryInfo = new DirectoryInfo(directoryPath);
 
-            if(deleteVsUserSettingsDirectory && directoryInfo.Name == ".vs")
+            if (deleteVsUserSettingsDirectory && _ignoredDirectoryNames.Contains(directoryInfo.Name))
             {
-                Directory.Delete(directoryInfo.FullName, true);
-
                 return;
             }
 
