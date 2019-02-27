@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Security.Permissions;
 using System.Text.RegularExpressions;
+using CommandLine;
 
 namespace VsProjectRename
 {
@@ -12,15 +15,42 @@ namespace VsProjectRename
 
         static void Main(string[] args)
         {
+            Console.WriteLine("Working... \n");
+
+            // Using commandline parser to 
+            // https://github.com/commandlineparser/commandline
+
+            Parser.Default
+                  .ParseArguments<CommandLineOptions>(args)
+                  .WithParsed(RunOptionsAndReturnExitCode)
+                  .WithNotParsed(HandleParseError);
+
+#if DEBUG
+            Console.ReadLine();
+#endif
+        }
+
+        private static void HandleParseError(IEnumerable<Error> errs)
+        {
+            foreach (var error in errs)
+            {
+                Console.WriteLine(error.ToString());
+            }
+        }
+
+        private static void RunOptionsAndReturnExitCode(CommandLineOptions opts)
+        {
             try
             {
-                string directoryPath = "";
+                string directoryPath = opts.DirectoryPath;
 
-                ReplaceInFiles(directoryPath, "Test", "Test1");
+                ReplaceInFiles(directoryPath, opts.FindText, opts.ReplaceText, deleteVsUserSettingsDirectory: true);
 
-                ReplaceInFileNames(directoryPath, "Test", "Test1");
+                ReplaceInFileNames(directoryPath, opts.FindText, opts.ReplaceText, deleteVsUserSettingsDirectory: true);
 
-                ReplaceInDirectoryNames(directoryPath, "Test", "Test1", deleteVsUserSettingsDirectory: true);
+                ReplaceInDirectoryNames(directoryPath, opts.FindText, opts.ReplaceText, deleteVsUserSettingsDirectory: true);
+
+                Console.WriteLine($"Finished.\n");
 
                 Console.WriteLine($"Replaced {_replaceInFilesCount} occurrences in files");
                 Console.WriteLine($"Replaced {_replaceInFileNamesCount} occurrences in file names");
@@ -32,8 +62,17 @@ namespace VsProjectRename
             }
         }
 
-        public static void ReplaceInFiles(string directoryPath, string findText, string replaceText)
+        public static void ReplaceInFiles(string directoryPath, string findText, string replaceText, bool deleteVsUserSettingsDirectory)
         {
+            var directoryInfo = new DirectoryInfo(directoryPath);
+
+            if (deleteVsUserSettingsDirectory && directoryInfo.Name == ".vs")
+            {
+                Directory.Delete(directoryInfo.FullName, true);
+
+                return;
+            }
+
             foreach (string file in Directory.GetFiles(directoryPath))
             {
                 string fileText = File.ReadAllText(file);
@@ -52,12 +91,21 @@ namespace VsProjectRename
 
             foreach (string directory in Directory.GetDirectories(directoryPath))
             {
-                ReplaceInFiles(directory, findText, replaceText);
+                ReplaceInFiles(directory, findText, replaceText, deleteVsUserSettingsDirectory);
             }
         }
 
-        public static void ReplaceInFileNames(string directoryPath, string findText, string replaceText)
+        public static void ReplaceInFileNames(string directoryPath, string findText, string replaceText, bool deleteVsUserSettingsDirectory)
         {
+            var directoryInfo = new DirectoryInfo(directoryPath);
+
+            if (deleteVsUserSettingsDirectory && directoryInfo.Name == ".vs")
+            {
+                Directory.Delete(directoryInfo.FullName, true);
+
+                return;
+            }
+
             foreach (string file in Directory.GetFiles(directoryPath))
             {
                 var fileInfo = new FileInfo(file);
@@ -78,7 +126,7 @@ namespace VsProjectRename
 
             foreach (string directory in Directory.GetDirectories(directoryPath))
             {
-                ReplaceInFileNames(directory, findText, replaceText);
+                ReplaceInFileNames(directory, findText, replaceText, deleteVsUserSettingsDirectory);
             }
         }
 
@@ -88,7 +136,9 @@ namespace VsProjectRename
 
             if(deleteVsUserSettingsDirectory && directoryInfo.Name == ".vs")
             {
-                Directory.Delete(directoryInfo.FullName);
+                Directory.Delete(directoryInfo.FullName, true);
+
+                return;
             }
 
             int count = Regex.Matches(directoryInfo.Name, findText, RegexOptions.None).Count;
@@ -108,7 +158,7 @@ namespace VsProjectRename
 
             foreach (string directory in Directory.GetDirectories(directoryInfoFullName))
             {
-                ReplaceInDirectoryNames(directory, findText, replaceText, deleteVsUserSettingsDirectory: deleteVsUserSettingsDirectory);
+                ReplaceInDirectoryNames(directory, findText, replaceText, deleteVsUserSettingsDirectory);
             }
         }
     }
