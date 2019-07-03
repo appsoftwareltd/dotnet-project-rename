@@ -96,14 +96,16 @@ namespace VsProjectRename
                 Console.WriteLine($"Replaced {_replaceInFileNamesCount} occurrences in file names");
                 Console.WriteLine($"Replaced {_replaceInDirectoryNamesCount} occurrences in directory names");
 
-                Console.WriteLine($"\nPress enter to continue.");
+                Console.WriteLine($"\n");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Failed with exception: {ex.Message}");
             }
 
-            Console.ReadLine();
+            // Run again
+
+            RunOptionsAndReturnExitCode(opts);
         }
 
         public static void ReplaceInFiles(string directoryPath, string findText, string replaceText, bool deleteVsUserSettingsDirectory)
@@ -156,9 +158,28 @@ namespace VsProjectRename
                 {
                     string newFileName = fileInfo.Name.Replace(findText, replaceText);
 
-                    string newFullFileName = fileInfo.FullName.ReplaceLastOccurrence(fileInfo.Name, newFileName);
+                    string originalFileName = fileInfo.Name;
 
-                    File.Move(fileInfo.FullName, newFullFileName);
+                    if (newFileName.Equals(originalFileName, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        // Where name change is case only, do an intermediate rename to facilitate change
+
+                        string tempFileName = $"temp_{originalFileName}_{Guid.NewGuid()}";
+
+                        string tempFullFileName = fileInfo.FullName.ReplaceLastOccurrence(fileInfo.Name, tempFileName);
+
+                        File.Move(fileInfo.FullName, tempFullFileName);
+
+                        string newFullFileName = fileInfo.FullName.ReplaceLastOccurrence(fileInfo.Name, newFileName);
+
+                        File.Move(tempFullFileName, newFullFileName);
+                    }
+                    else
+                    {
+                        string newFullFileName = fileInfo.FullName.ReplaceLastOccurrence(fileInfo.Name, newFileName);
+
+                        File.Move(fileInfo.FullName, newFullFileName);
+                    }
 
                     _replaceInFileNamesCount += count;
                 }
@@ -187,9 +208,28 @@ namespace VsProjectRename
             {
                 string newDirectoryName = directoryInfo.Name.Replace(findText, replaceText);
 
-                directoryInfoFullName = directoryInfo.FullName.ReplaceLastOccurrence(directoryInfo.Name, newDirectoryName);
+                string orginalDirectoryName = directoryInfo.Name;
 
-                Directory.Move(directoryInfo.FullName, directoryInfoFullName);
+                if (newDirectoryName.Equals(orginalDirectoryName, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    // Where name change is case only, do an intermediate rename to facilitate change
+
+                    string tempDirectoryName = $"temp_{orginalDirectoryName}_{Guid.NewGuid()}";
+
+                    string tempFullDirectoryName = directoryInfo.FullName.ReplaceLastOccurrence(directoryInfo.Name, tempDirectoryName);
+
+                    Directory.Move(directoryInfo.FullName, tempFullDirectoryName);
+
+                    string newFullDirectoryName = directoryInfo.FullName.ReplaceLastOccurrence(directoryInfo.Name, newDirectoryName);
+
+                    Directory.Move(tempFullDirectoryName, newFullDirectoryName);
+                }
+                else
+                {
+                    directoryInfoFullName = directoryInfo.FullName.ReplaceLastOccurrence(directoryInfo.Name, newDirectoryName);
+
+                    Directory.Move(directoryInfo.FullName, directoryInfoFullName);
+                }
 
                 _replaceInDirectoryNamesCount += count;
             }
