@@ -23,7 +23,7 @@ All instances of the find text will be replaced, giving you a completely renamed
 
 An attempt is made to avoid corrupting files managed by version control and visual studio (so `.git`, `.svn` and `.vs` directories are ignored). This list is not exhaustive though so ideally you will have the solution code in a directory other than where these files sit.
 
-## Running with dotnet-script
+## Running dotnet-script version
 
 A version of this tool for running with dotnet-script is included in this repository at ```src/dotnet-script/app.csx```.
 
@@ -38,3 +38,9 @@ If you do not have dotnet-script installed you can then install the tool using:
 Navigate your terminal to the directory in this repository ```src/dotnet-script```.
 
 Run ```> dotnet script app.csx```
+
+### Running remotely
+
+Since dotnet-script allows for running of scripts from remote locations, you can run the .csx script file without downloading this repository:  
+
+```> dotnet script https://raw.githubusercontent.com/garethrbrown/vs-project-rename/master/src/dotnet-script/app.csx```
