@@ -84,10 +84,13 @@ public class Program
             {
                 Console.WriteLine($"\nReplace text: {directoryPath}");
             }
+
             Console.WriteLine("\nWorking...");
+
             ReplaceInFiles(directoryPath, findText, replaceText, deleteVsUserSettingsDirectory: true);
             ReplaceInFileNames(directoryPath, findText, replaceText, deleteVsUserSettingsDirectory: true);
             ReplaceInDirectoryNames(directoryPath, findText, replaceText, deleteVsUserSettingsDirectory: true);
+            
             Console.WriteLine($"\nFinished.\n");
             Console.WriteLine($"Replaced {_replaceInFilesCount} occurrences in files");
             Console.WriteLine($"Replaced {_replaceInFileNamesCount} occurrences in file names");
