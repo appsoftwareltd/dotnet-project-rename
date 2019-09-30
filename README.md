@@ -1,8 +1,8 @@
-# Visual Studio Project Rename
+# .NET Project Rename
 
-## Visual Studio project renaming (within files, file names and directory names)
+## .NET project renaming (within files, file names and directory names)
 
-This console application is designed for finding and replacing text throughout Visual Studio projects, including inside project and data files, along with file and folder names, including solution files. By recursively renaming at the root of the project, you can avoid breaking links to project files and references to other projects in the solution.
+This console application is designed for finding and replacing text throughout .NET / Visual Studio projects, including inside project and data files, along with file and folder names, including solution files. By recursively renaming at the root of the project, you can avoid breaking links to project files and references to other projects in the solution.
 
 You may want to do this if you are reusing an existing project as a base for a new project, but need to replace old names.
 
@@ -43,4 +43,4 @@ Run ```> dotnet script app.csx```
 
 Since dotnet-script allows for running of scripts from remote locations, you can run the .csx script file without downloading this repository:  
 
-```> dotnet script https://raw.githubusercontent.com/garethrbrown/vs-project-rename/master/src/dotnet-script/app.csx```
+```> dotnet script https://raw.githubusercontent.com/appsoftwareltd/dotnet-project-rename/master/src/dotnet-script/app.csx```
